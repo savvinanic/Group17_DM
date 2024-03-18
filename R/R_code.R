@@ -595,8 +595,7 @@ library(ggplot2)
 library(gridExtra)
 library(knitr)
 
-# Load Files in an sqlite database 
-connection <- RSQLite::dbConnect(RSQLite::SQLite(),"dataset/hi_import.db")
+
 
 
 # 1. Product Category vs Count
