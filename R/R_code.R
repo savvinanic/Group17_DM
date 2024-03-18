@@ -592,8 +592,6 @@ library(RSQLite)
 library(dplyr)
 library(DBI)
 library(ggplot2)
-library(tidyverse)
-library(emmeans)
 library(gridExtra)
 library(knitr)
 
