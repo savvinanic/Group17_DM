@@ -605,6 +605,8 @@ product_procat_join <- dbGetQuery(connection, "
   INNER JOIN product_category AS pc ON p.category_name = pc.category_name
 ")
 
+dbWriteTable(connection, "product_procat_join_dataset", product_procat_join, overwrite = TRUE)
+
 product_count <- product_procat_join %>%
   group_by(parent_category_id) %>%
   summarise(count = n())
@@ -620,13 +622,16 @@ g1 <- ggplot(product_count, aes(x = factor(parent_category_id), y = count, fill 
 
 ggsave("figures/Product Category vs Count.png", plot = g1, width = 10, height = 6)
 
+
+
 #  Sales by Category
 order_product_join <- dbGetQuery(connection, "
 SELECT op.order_id, op.customer_id, op.product_id, p.parent_category_id, op.product_qty, p.product_price, od.order_date
 FROM `order_products_info` AS op
 INNER JOIN order_datetime AS od ON op.order_id = od.order_id
-INNER JOIN product_procat_join_dataset AS p ON op.product_id = p.product_id
+INNER JOIN product_procat_join AS p ON op.product_id = p.product_id
 ")
+
 
 category_sales <- order_product_join %>%
   group_by(parent_category_id) %>%
@@ -670,12 +675,20 @@ g3 <- ggplot(orderqty_category_join, aes(x = factor(parent_category_id),
 ggsave("figures/Avg order quantity.png", plot = g3, width = 10, height = 6)
 
 # 4. Product Category vs Average Order Quantity per Month
+order_products_datetime <- dbGetQuery(connection, "
+SELECT o.*, op.product_id, op.product_qty
+FROM `order_datetime` AS o
+INNER JOIN order_products_info AS op ON o.order_id = op.order_id
+")
+dbWriteTable(connection, "order_products_datetime_dataset", order_products_datetime, overwrite = TRUE)
+
 monthly_orderqty_category_join <- dbGetQuery(connection, "
 SELECT pc.parent_category_id, o.order_date, o.product_qty
 FROM `order_products_datetime_dataset` AS o
 INNER JOIN product AS p ON o.product_id = p.product_id
 INNER JOIN product_category AS pc ON p.category_name = pc.category_name
 ")
+
 
 # Convert order_date to date format
 monthly_orderqty_category_join <- monthly_orderqty_category_join %>%
